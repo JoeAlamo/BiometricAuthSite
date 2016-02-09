@@ -41,7 +41,7 @@ $app['home.controller'] = $app->share(function () use ($app) {
    return new BiometricSite\Controller\HomeController($app['twig']);
 });
 $app['login.controller'] = $app->share(function () use ($app) {
-   return new BiometricSite\Controller\LoginAuthController($app['request_stack']->getCurrentRequest(), $app['twig']);
+   return new BiometricSite\Controller\LoginAuthController($app['request_stack']->getCurrentRequest(), $app['twig'], $app['service.loginAuth']);
 });
 
 /*********************************************************************************

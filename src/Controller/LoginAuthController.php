@@ -8,23 +8,27 @@
 
 namespace BiometricSite\Controller;
 
+use BiometricSite\Service\LoginAuthServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 class LoginAuthController {
-    protected $request;
-    protected $twig;
+    private $request;
+    private $twig;
+    private $loginAuthService;
 
-    public function __construct(Request $request, \Twig_Environment $twig) {
+    public function __construct(Request $request, \Twig_Environment $twig, LoginAuthServiceInterface $loginAuthService) {
         $this->request = $request;
         $this->twig = $twig;
+        $this->loginAuthService = $loginAuthService;
     }
 
     public function indexAction() {
-        var_dump($this->request->getClientIp());
         return $this->twig->render('login.twig');
     }
 
     public function loginAction() {
+        $authenticated = $this->loginAuthService->authenticateUser($this->request->request->get('username'), $this->request->request->get('password'));
 
+        return $authenticated ? 'Login successful' : 'Login unsuccessful';
     }
 } 
