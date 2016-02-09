@@ -27,6 +27,14 @@ $app['repository.user'] = $app->share(function () use ($app) {
    return new BiometricSite\Repository\PDOUserRepository($app['database']);
 });
 
+/*********************************************************************************
+ * SERVICES
+ ********************************************************************************/
+$app['service.loginAuth'] = $app->share(function () use ($app) {
+   return new BiometricSite\Service\LoginAuthService($app['repository.user']);
+});
+
+/*********************************************************************************
  * CONTROLLERS
  ********************************************************************************/
 $app['home.controller'] = $app->share(function () use ($app) {
