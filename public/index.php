@@ -21,6 +21,12 @@ $app->register(new \Silex\Provider\TwigServiceProvider(), [
 $app->register(new BiometricSite\ServiceProvider\DatabaseServiceProvider());
 
 /*********************************************************************************
+ * REPOSITORIES
+ ********************************************************************************/
+$app['repository.user'] = $app->share(function () use ($app) {
+   return new BiometricSite\Repository\PDOUserRepository($app['database']);
+});
+
  * CONTROLLERS
  ********************************************************************************/
 $app['home.controller'] = $app->share(function () use ($app) {
