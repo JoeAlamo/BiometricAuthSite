@@ -23,11 +23,14 @@ class DatabaseServiceProvider implements ServiceProviderInterface {
         ];
 
         $app['database'] = $app->share(function($app) {
-            return new \PDO(
+            $pdo = new \PDO(
                 "{$app['options.database']['driver']}:host={$app['options.database']['host']};dbname={$app['options.database']['dbname']};charset=utf8",
                 $app['options.database']['user'],
                 $app['options.database']['password']
             );
+            $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+
+            return $pdo;
         });
     }
 
