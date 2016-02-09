@@ -11,6 +11,12 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $app = new Silex\Application();
 getenv('APP_ENV') === 'dev' ? $app['debug'] = true : $app['debug'] = false;
 
+/*********************************************************************************
+ * PROVIDERS
+ ********************************************************************************/
+$app->register(new \Silex\Provider\TwigServiceProvider(), [
+    'twig.path' => __DIR__ . '/../resource/view',
+]);
 $app->register(new BiometricSite\ServiceProvider\DatabaseServiceProvider());
 
 
