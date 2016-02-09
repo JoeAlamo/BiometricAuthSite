@@ -11,5 +11,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 $app = new Silex\Application();
 getenv('APP_ENV') === 'dev' ? $app['debug'] = true : $app['debug'] = false;
 
+$app->register(new BiometricSite\ServiceProvider\DatabaseServiceProvider());
+
 
 $app->run();
