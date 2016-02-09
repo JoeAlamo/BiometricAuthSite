@@ -21,4 +21,10 @@ interface UserRepositoryInterface {
      * @return \BiometricSite\Model\User|false
      */
     public function findByUsername($username);
+
+    /**
+     * @param $id
+     * @return bool
+     */
+    public function isBiometricallyAuthenticated($id);
 } 
