@@ -1,6 +1,19 @@
 {
+    "name": "BiometricSite",
+    "description": "Site with multi-factor biometric authentication implemented for final year project",
     "require": {
         "silex/silex": "~1.3",
         "twig/twig": "~1.17"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "BiometricSite\\": "src/",
+            "BiometricSite\\Controller\\": "src/Controller",
+            "BiometricSite\\Model\\": "src/Model",
+            "BiometricSite\\Repository\\": "src/Repository",
+            "BiometricSite\\Service\\": "src/Service",
+            "BiometricSite\\ServiceProvider\\": "src/ServiceProvider"
+        }
     }
 }
