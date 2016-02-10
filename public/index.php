@@ -78,7 +78,7 @@ $jsonRequestTransform = function (\Symfony\Component\HttpFoundation\Request $req
 /*********************************************************************************
  * ROUTES
  ********************************************************************************/
-$app->get('/', 'home.controller:indexAction');
+$app->get('/', 'controller.home:indexAction');
 
 $app->get('/authentication/login', 'controller.loginAuth:indexAction');
 $app->post('/authentication/login', 'controller.loginAuth:loginAction');
