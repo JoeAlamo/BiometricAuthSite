@@ -24,7 +24,7 @@ class BioAuthController {
     }
 
     public function authenticateV1Action() {
-        return $this->bioAuthService->authenticate($this->request->request->get('client_id'), $this);
+        return $this->bioAuthService->authenticate($this->request->request->get('client_id'), $this->request->getClientIp(), $this);
     }
 
     public function unknownClientId() {
