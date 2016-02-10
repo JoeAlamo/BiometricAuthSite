@@ -26,6 +26,9 @@ $app->register(new BiometricSite\ServiceProvider\DatabaseServiceProvider());
 $app['repository.user'] = $app->share(function () use ($app) {
     return new BiometricSite\Repository\PDOUserRepository($app['database']);
 });
+
+$app['repository.bioClient'] = $app->share(function () use ($app) {
+    return new BiometricSite\Repository\PDOBioClientRepository($app['database']);
 });
 
 /*********************************************************************************
@@ -34,6 +37,9 @@ $app['repository.user'] = $app->share(function () use ($app) {
 $app['service.loginAuth'] = $app->share(function () use ($app) {
     return new BiometricSite\Service\LoginAuthService($app['repository.user']);
 });
+
+$app['service.bioAuth.V1'] = $app->share(function () use ($app) {
+    return new BiometricSite\Service\BioAuth\V1\BioAuthService($app['repository.bioClient']);
 });
 
 /*********************************************************************************
@@ -46,6 +52,9 @@ $app['controller.home'] = $app->share(function () use ($app) {
 $app['controller.loginAuth'] = $app->share(function () use ($app) {
     return new BiometricSite\Controller\LoginAuthController($app['request_stack']->getCurrentRequest(), $app['twig'], $app['service.loginAuth']);
 });
+
+$app['controller.bioAuth.V1'] = $app->share(function () use ($app) {
+    return new BiometricSite\Controller\BioAuthController($app['request_stack']->getCurrentRequest(), $app['service.bioAuth.V1']);
 });
 
 /*********************************************************************************
@@ -55,5 +64,7 @@ $app->get('/', 'home.controller:indexAction');
 
 $app->get('/authentication/login', 'controller.loginAuth:indexAction');
 $app->post('/authentication/login', 'controller.loginAuth:loginAction');
+
+$app->post('/authentication/biometric/v1', 'controller.bioAuth.V1:authenticateV1Action');
 
 $app->run();
