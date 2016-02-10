@@ -28,7 +28,7 @@ class BioAuthService implements BioAuthServiceInterface {
         $this->bioAuthSessionRepository = $bioAuthSessionRepository;
     }
 
-    public function authenticate($client_id, $endpoint)
+    public function authenticate($client_id, $ip_address, $endpoint)
     {
         // Verify that client_id is not null
         if (!$client_id) {
@@ -40,7 +40,7 @@ class BioAuthService implements BioAuthServiceInterface {
             return $endpoint->unknownClientId();
         }
         // Create biometric authenticated session for the client
-        $biometricSession = $this->bioSessionRepository->add(openssl_random_pseudo_bytes(24), null, null);
+        $biometricSession = $this->bioSessionRepository->add(bin2hex(openssl_random_pseudo_bytes(16)), null, $ip_address);
         $biometricAuthenticatedSession = $this->bioAuthSessionRepository->add($client->biometric_client_id, $biometricSession->biometric_session_id, 30);
 
         return $endpoint->bioAuthSuccessful($biometricAuthenticatedSession->expires);

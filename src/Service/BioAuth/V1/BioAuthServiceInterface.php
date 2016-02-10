@@ -9,5 +9,5 @@
 namespace BiometricSite\Service\BioAuth\V1;
 
 interface BioAuthServiceInterface {
-    public function authenticate($client_id, $endpoint);
+    public function authenticate($client_id, $ip_address, $endpoint);
 } 
