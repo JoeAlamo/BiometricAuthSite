@@ -66,6 +66,16 @@ $app['controller.bioAuth.V1'] = $app->share(function () use ($app) {
 });
 
 /*********************************************************************************
+ * MIDDLEWARE
+ ********************************************************************************/
+$jsonRequestTransform = function (\Symfony\Component\HttpFoundation\Request $request) {
+    if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
+        $data = json_decode($request->getContent(), true);
+        $request->request->replace(is_array($data) ? $data : array());
+    }
+};
+
+/*********************************************************************************
  * ROUTES
  ********************************************************************************/
 $app->get('/', 'home.controller:indexAction');
@@ -73,6 +83,7 @@ $app->get('/', 'home.controller:indexAction');
 $app->get('/authentication/login', 'controller.loginAuth:indexAction');
 $app->post('/authentication/login', 'controller.loginAuth:loginAction');
 
-$app->post('/authentication/biometric/v1', 'controller.bioAuth.V1:authenticateV1Action');
+$app->post('/authentication/biometric/v1', 'controller.bioAuth.V1:authenticateV1Action')
+    ->before($jsonRequestTransform);
 
 $app->run();
