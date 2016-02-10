@@ -10,5 +10,10 @@ namespace BiometricSite\Repository;
 
 
 interface BioClientRepositoryInterface {
+    /**
+     * @param $clientId
+     * @return \BiometricSite\Model\BiometricClient|false
+     *
+     */
     public function findByClientId($clientId);
 } 
