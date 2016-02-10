@@ -31,6 +31,14 @@ $app['repository.bioClient'] = $app->share(function () use ($app) {
     return new BiometricSite\Repository\PDOBioClientRepository($app['database']);
 });
 
+$app['repository.bioSession'] = $app->share(function () use ($app) {
+   return new BiometricSite\Repository\PDOBioSessionRepository($app['database']);
+});
+
+$app['repository.bioAuthSession'] = $app->share(function () use ($app) {
+   return new BiometricSite\Repository\PDOBioAuthSessionRepository($app['database']);
+});
+
 /*********************************************************************************
  * SERVICES
  ********************************************************************************/
@@ -39,7 +47,7 @@ $app['service.loginAuth'] = $app->share(function () use ($app) {
 });
 
 $app['service.bioAuth.V1'] = $app->share(function () use ($app) {
-    return new BiometricSite\Service\BioAuth\V1\BioAuthService($app['repository.bioClient']);
+    return new BiometricSite\Service\BioAuth\V1\BioAuthService($app['repository.bioClient'], $app['repository.bioSession'], $app['repository.bioAuthSession']);
 });
 
 /*********************************************************************************
