@@ -32,7 +32,7 @@ class LoginAuthController {
 
 		if ($authenticated) {
 			return new Response('Login successful', Response::HTTP_OK);
-		else {
+		} else {
 			return new Response('Login unsuccessful', Response::HTTP_FORBIDDEN);
 		}
     }
