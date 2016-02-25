@@ -10,6 +10,7 @@ namespace BiometricSite\Controller;
 
 use BiometricSite\Service\LoginAuthServiceInterface;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class LoginAuthController {
     private $request;
@@ -29,6 +30,10 @@ class LoginAuthController {
     public function loginAction() {
         $authenticated = $this->loginAuthService->authenticateUser($this->request->request->get('username'), $this->request->request->get('password'));
 
-        return $authenticated ? 'Login successful' : 'Login unsuccessful';
+		if ($authenticated) {
+			return new Response('Login successful', Response::HTTP_OK);
+		else {
+			return new Response('Login unsuccessful', Response::HTTP_FORBIDDEN);
+		}
     }
 } 
