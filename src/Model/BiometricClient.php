@@ -14,6 +14,5 @@ class BiometricClient {
     public $authentication_key;
     public $key_derivation_key;
     public $client_id;
-    public $biometric_device_id;
     public $user_id;
 } 

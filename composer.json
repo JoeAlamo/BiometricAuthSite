@@ -13,7 +13,7 @@
             "BiometricSite\\Model\\": "src/Model",
             "BiometricSite\\Repository\\": "src/Repository",
             "BiometricSite\\Service\\": "src/Service",
-            "BiometricSite\\ServiceProvider\\": "src/ServiceProvider"
+            "BiometricSite\\Provider\\": "src/Provider"
         }
     }
 }

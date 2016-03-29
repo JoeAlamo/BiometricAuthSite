@@ -9,21 +9,21 @@
 namespace BiometricSite\Controller;
 
 
-use BiometricSite\Service\BioAuth\V1\BioAuthServiceInterface;
+use BiometricSite\Service\BioAuthV1ServiceInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class BioAuthController {
+class BioAuthV1Controller {
     private $request;
     private $bioAuthService;
 
-    public function __construct(Request $request, BioAuthServiceInterface $bioAuthService) {
+    public function __construct(Request $request, BioAuthV1ServiceInterface $bioAuthService) {
         $this->request = $request;
         $this->bioAuthService = $bioAuthService;
     }
 
-    public function authenticateV1Action() {
+    public function stage1Action() {
         return $this->bioAuthService->authenticate($this->request->request->get('client_id'), $this->request->getClientIp(), $this);
     }
 

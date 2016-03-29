@@ -6,14 +6,14 @@
  * Time: 17:25
  */
 
-namespace BiometricSite\Service\BioAuth\V1;
+namespace BiometricSite\Service;
 
 
 use BiometricSite\Repository\BioAuthSessionRepositoryInterface;
 use BiometricSite\Repository\BioClientRepositoryInterface;
 use BiometricSite\Repository\BioSessionRepositoryInterface;
 
-class BioAuthService implements BioAuthServiceInterface {
+class BioAuthV1Service implements BioAuthV1ServiceInterface {
     private $bioClientRepository;
     private $bioSessionRepository;
     private $bioAuthSessionRepository;

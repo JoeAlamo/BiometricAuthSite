@@ -6,6 +6,14 @@
  * Time: 17:28
  */
 
+/**
+ * SILEX LICENSE NOTICE
+ * Copyright (c) 2010, 2016 Fabien Potencier
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 require_once __DIR__ . '/../vendor/autoload.php';
 
 $app = new Silex\Application();
@@ -18,7 +26,7 @@ $app->register(new Silex\Provider\ServiceControllerServiceProvider());
 $app->register(new Silex\Provider\TwigServiceProvider(), [
     'twig.path' => __DIR__ . '/../resource/view',
 ]);
-$app->register(new BiometricSite\ServiceProvider\DatabaseServiceProvider());
+$app->register(new BiometricSite\Provider\DatabaseServiceProvider());
 
 /*********************************************************************************
  * REPOSITORIES
@@ -47,7 +55,7 @@ $app['service.loginAuth'] = $app->share(function () use ($app) {
 });
 
 $app['service.bioAuth.V1'] = $app->share(function () use ($app) {
-    return new BiometricSite\Service\BioAuth\V1\BioAuthService($app['repository.bioClient'], $app['repository.bioSession'], $app['repository.bioAuthSession']);
+    return new BiometricSite\Service\BioAuthV1Service($app['repository.bioClient'], $app['repository.bioSession'], $app['repository.bioAuthSession']);
 });
 
 /*********************************************************************************
@@ -62,7 +70,7 @@ $app['controller.loginAuth'] = $app->share(function () use ($app) {
 });
 
 $app['controller.bioAuth.V1'] = $app->share(function () use ($app) {
-    return new BiometricSite\Controller\BioAuthController($app['request_stack']->getCurrentRequest(), $app['service.bioAuth.V1']);
+    return new BiometricSite\Controller\BioAuthV1Controller($app['request_stack']->getCurrentRequest(), $app['service.bioAuth.V1']);
 });
 
 /*********************************************************************************
@@ -83,7 +91,7 @@ $app->get('/', 'controller.home:indexAction');
 $app->get('/authentication/login', 'controller.loginAuth:indexAction');
 $app->post('/authentication/login', 'controller.loginAuth:loginAction');
 
-$app->post('/authentication/biometric/v1', 'controller.bioAuth.V1:authenticateV1Action')
+$app->post('/authentication/biometric/v1', 'controller.bioAuth.V1:stage1Action')
     ->before($jsonRequestTransform);
 
 $app->run();

@@ -6,8 +6,8 @@
  * Time: 17:24
  */
 
-namespace BiometricSite\Service\BioAuth\V1;
+namespace BiometricSite\Service;
 
-interface BioAuthServiceInterface {
+interface BioAuthV1ServiceInterface {
     public function authenticate($client_id, $ip_address, $endpoint);
 } 
