@@ -91,7 +91,7 @@ $app->get('/', 'controller.home:indexAction');
 $app->get('/authentication/login', 'controller.loginAuth:indexAction');
 $app->post('/authentication/login', 'controller.loginAuth:loginAction');
 
-$app->post('/authentication/biometric/v1', 'controller.bioAuth.V1:stage1Action')
+$app->post('/authentication/v1/biometric', 'controller.bioAuth.V1:stage1Action')
     ->before($jsonRequestTransform);
 
 $app->run();

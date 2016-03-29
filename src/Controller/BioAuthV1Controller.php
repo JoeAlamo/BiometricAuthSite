@@ -14,12 +14,12 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class BioAuthV1Controller {
+class BioAuthV1Controller extends AbstractBioAuthController implements BioAuthV1ControllerInterface {
     private $request;
     private $bioAuthService;
 
     public function __construct(Request $request, BioAuthV1ServiceInterface $bioAuthService) {
-        $this->request = $request;
+        parent::__construct($request);
         $this->bioAuthService = $bioAuthService;
     }
 
@@ -27,17 +27,9 @@ class BioAuthV1Controller {
         return $this->bioAuthService->authenticate($this->request->request->get('client_id'), $this->request->getClientIp(), $this);
     }
 
-    public function unknownClientId() {
-        return new Response('', Response::HTTP_FORBIDDEN);
-    }
-
-    public function invalidRequest() {
-        return new Response('', Response::HTTP_BAD_REQUEST);
-    }
-
-    public function bioAuthSuccessful($duration) {
+    public function successfulResponse($duration) {
         $responseData = [
-            'expires' => $duration
+            'expires' => (int)$duration
         ];
 
         return new JsonResponse((object)$responseData, Response::HTTP_OK);

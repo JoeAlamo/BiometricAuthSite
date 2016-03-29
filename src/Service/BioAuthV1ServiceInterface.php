@@ -8,6 +8,8 @@
 
 namespace BiometricSite\Service;
 
+use BiometricSite\Controller\BioAuthV1ControllerInterface;
+
 interface BioAuthV1ServiceInterface {
-    public function authenticate($client_id, $ip_address, $endpoint);
+    public function authenticate($client_id, $ip_address, BioAuthV1ControllerInterface $endpoint);
 } 

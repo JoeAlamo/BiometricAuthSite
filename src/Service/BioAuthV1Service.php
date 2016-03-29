@@ -9,6 +9,7 @@
 namespace BiometricSite\Service;
 
 
+use BiometricSite\Controller\BioAuthV1ControllerInterface;
 use BiometricSite\Repository\BioAuthSessionRepositoryInterface;
 use BiometricSite\Repository\BioClientRepositoryInterface;
 use BiometricSite\Repository\BioSessionRepositoryInterface;
@@ -28,21 +29,21 @@ class BioAuthV1Service implements BioAuthV1ServiceInterface {
         $this->bioAuthSessionRepository = $bioAuthSessionRepository;
     }
 
-    public function authenticate($client_id, $ip_address, $endpoint)
+    public function authenticate($client_id, $ip_address, BioAuthV1ControllerInterface $endpoint)
     {
         // Verify that client_id is not null
         if (!$client_id) {
-            return $endpoint->invalidRequest();
+            return $endpoint->invalidRequestResponse();
         }
         // Verify that client_id is a valid client
         $client = $this->bioClientRepository->findByClientId($client_id);
         if (!$client) {
-            return $endpoint->unknownClientId();
+            return $endpoint->invalidClientIDResponse();
         }
         // Create biometric authenticated session for the client
         $biometricSession = $this->bioSessionRepository->add(bin2hex(openssl_random_pseudo_bytes(16)), null, $ip_address);
         $biometricAuthenticatedSession = $this->bioAuthSessionRepository->add($client->biometric_client_id, $biometricSession->biometric_session_id, 30);
 
-        return $endpoint->bioAuthSuccessful($biometricAuthenticatedSession->expires);
+        return $endpoint->successfulResponse($biometricAuthenticatedSession->expires);
     }
 }
