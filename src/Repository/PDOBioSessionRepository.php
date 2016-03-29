@@ -18,7 +18,7 @@ class PDOBioSessionRepository implements BioSessionRepositoryInterface {
         $this->database = $database;
     }
 
-    public function add($session_id, $client_random, $ip_address)
+    public function add($session_id, $client_random, $ip_address, $timestamp)
     {
         $stmt = $this->database->prepare('
             INSERT INTO biometric_session
@@ -31,12 +31,47 @@ class PDOBioSessionRepository implements BioSessionRepositoryInterface {
         $success = $stmt->execute();
 
         if ($success) {
-            $biometricSession = new BiometricSession($session_id, $client_random, $ip_address);
-            $biometricSession->biometric_session_id = $this->database->lastInsertId();
+            $biometricSession = new BiometricSession($this->database->lastInsertId(), $session_id, $client_random, $ip_address, null, null);
 
             return $biometricSession;
         }
 
         return false;
+    }
+
+    /**
+     * @param $biometric_session_id
+     * @param $biometric_client_id
+     * @return bool
+     */
+    public function associateSessionToClient($biometric_session_id, $biometric_client_id)
+    {
+        $stmt = $this->database->prepare('
+            UPDATE biometric_session SET biometric_client_id = :biometric_client_id
+            WHERE biometric_session_id = :biometric_session_id
+        ');
+        $stmt->bindParam('biometric_client_id', $biometric_client_id);
+        $stmt->bindParam('biometric_session_id', $biometric_session_id);
+
+        return $stmt->execute();
+    }
+
+    /**
+     * @param $session_id
+     * @return \BiometricSite\Model\BiometricSession|false
+     */
+    public function findBySessionId($session_id)
+    {
+        $stmt = $this->database->prepare('
+            SELECT * FROM biometric_session
+            WHERE session_id = :session_id
+        ');
+        $stmt->bindParam(':session_id', $session_id);
+
+        $stmt->execute();
+
+        $stmt->setFetchMode(\PDO::FETCH_CLASS, 'BiometricSite\\Model\\BiometricSession');
+
+        return $stmt->fetch();
     }
 }

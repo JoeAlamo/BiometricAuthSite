@@ -9,15 +9,9 @@
 namespace BiometricSite\Controller;
 
 
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractBioAuthController {
-    private $request;
-
-    public function __construct(Request $request) {
-        $this->request = $request;
-    }
 
     public function invalidClientIDResponse() {
         return new Response('', Response::HTTP_FORBIDDEN);

@@ -19,7 +19,7 @@ class BioAuthV1Controller extends AbstractBioAuthController implements BioAuthV1
     private $bioAuthService;
 
     public function __construct(Request $request, BioAuthV1ServiceInterface $bioAuthService) {
-        parent::__construct($request);
+        $this->request = $request;
         $this->bioAuthService = $bioAuthService;
     }
 
