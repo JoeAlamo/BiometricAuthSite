@@ -9,35 +9,39 @@
 namespace BiometricSite\Controller;
 
 
-use BiometricSite\Service\BioAuth\V1\BioAuthServiceInterface;
+use BiometricSite\Service\BioAuthV1ServiceInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class BioAuthController {
+class BioAuthV1Controller implements BioAuthV1ControllerInterface {
     private $request;
     private $bioAuthService;
 
-    public function __construct(Request $request, BioAuthServiceInterface $bioAuthService) {
+    public function __construct(Request $request, BioAuthV1ServiceInterface $bioAuthService) {
         $this->request = $request;
         $this->bioAuthService = $bioAuthService;
     }
 
-    public function authenticateV1Action() {
-        return $this->bioAuthService->authenticate($this->request->request->get('client_id'), $this->request->getClientIp(), $this);
+    public function stage1Action() {
+        return $this->bioAuthService->performStage1(
+            $this->request->request->get('client_id'),
+            $this->request->getClientIp(),
+            $this
+        );
     }
 
-    public function unknownClientId() {
+    public function invalidClientIdResponse() {
         return new Response('', Response::HTTP_FORBIDDEN);
     }
 
-    public function invalidRequest() {
+    public function invalidRequestResponse() {
         return new Response('', Response::HTTP_BAD_REQUEST);
     }
 
-    public function bioAuthSuccessful($duration) {
+    public function successfulResponse($duration) {
         $responseData = [
-            'expires' => $duration
+            'expires' => (int)$duration > 0 ? (int)$duration : 0
         ];
 
         return new JsonResponse((object)$responseData, Response::HTTP_OK);

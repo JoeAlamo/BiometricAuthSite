@@ -6,7 +6,7 @@
  * Time: 13:00
  */
 
-namespace BiometricSite\ServiceProvider;
+namespace BiometricSite\Provider;
 
 use Silex\Application;
 use Silex\ServiceProviderInterface;
