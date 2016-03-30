@@ -29,6 +29,26 @@ $app->register(new Silex\Provider\TwigServiceProvider(), [
 $app->register(new BiometricSite\Provider\DatabaseServiceProvider());
 
 /*********************************************************************************
+ * ERROR AND EXCEPTION HANDLING
+ ********************************************************************************/
+use Symfony\Component\Debug\ErrorHandler;
+use Symfony\Component\Debug\ExceptionHandler;
+use Symfony\Component\HttpFoundation\Response;
+
+ErrorHandler::register();
+ExceptionHandler::register(false);
+
+$app->error(function (\Exception $e, $code) use ($app) {
+    error_log(sprintf("\nERROR %s : %s", $code, $e->getMessage()));
+
+    if (strpos($app['request_stack']->getCurrentRequest()->headers->get('Content-Type'), 'application/json') === 0) {
+        return new Response('', $code);
+    } else {
+        return new Response('Sorry, something went wrong.', $code);
+    }
+});
+
+/*********************************************************************************
  * REPOSITORIES
  ********************************************************************************/
 $app['repository.user'] = function () use ($app) {
