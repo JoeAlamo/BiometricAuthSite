@@ -87,7 +87,11 @@ class BioAuthV1Service implements BioAuthV1ServiceInterface {
     private function generateUnusedSessionId() {
         do {
             // Generate session_id securely
-            $session_id = base64_encode(openssl_random_pseudo_bytes(16));
+            $cryptographicallySecure = false;
+            $session_id = base64_encode(openssl_random_pseudo_bytes(16, $cryptographicallySecure));
+            if ($cryptographicallySecure === false) {
+                throw new \UnexpectedValueException("System is not cryptographically secure", 500);
+            }
             // See if session_id has already been used for a session
             $session_idAlreadyExists = $this->bioSessionRepository->findBySessionId($session_id);
         } while ($session_idAlreadyExists !== false);

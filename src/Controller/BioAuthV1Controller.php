@@ -24,7 +24,11 @@ class BioAuthV1Controller implements BioAuthV1ControllerInterface {
     }
 
     public function stage1Action() {
-        return $this->bioAuthService->performStage1($this->request->request->get('client_id'), $this->request->getClientIp(), $this);
+        return $this->bioAuthService->performStage1(
+            $this->request->request->get('client_id'),
+            $this->request->getClientIp(),
+            $this
+        );
     }
 
     public function invalidClientIdResponse() {
