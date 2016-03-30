@@ -31,32 +31,36 @@ $app->register(new BiometricSite\Provider\DatabaseServiceProvider());
 /*********************************************************************************
  * REPOSITORIES
  ********************************************************************************/
-$app['repository.user'] = $app->share(function () use ($app) {
+$app['repository.user'] = function () use ($app) {
     return new BiometricSite\Repository\PDOUserRepository($app['database']);
-});
+};
 
-$app['repository.bioClient'] = $app->share(function () use ($app) {
+$app['repository.bioClient'] = function () use ($app) {
     return new BiometricSite\Repository\PDOBioClientRepository($app['database']);
-});
+};
 
-$app['repository.bioSession'] = $app->share(function () use ($app) {
+$app['repository.bioSession'] = function () use ($app) {
    return new BiometricSite\Repository\PDOBioSessionRepository($app['database']);
-});
+};
 
-$app['repository.bioAuthSession'] = $app->share(function () use ($app) {
+$app['repository.bioAuthSession'] = function () use ($app) {
    return new BiometricSite\Repository\PDOBioAuthSessionRepository($app['database']);
-});
+};
 
 /*********************************************************************************
  * SERVICES
  ********************************************************************************/
-$app['service.loginAuth'] = $app->share(function () use ($app) {
+$app['service.loginAuth'] = function () use ($app) {
     return new BiometricSite\Service\LoginAuthService($app['repository.user']);
-});
+};
 
-$app['service.bioAuth.V1'] = $app->share(function () use ($app) {
-    return new BiometricSite\Service\BioAuthV1Service($app['repository.bioClient'], $app['repository.bioSession'], $app['repository.bioAuthSession']);
-});
+$app['service.bioAuth.V1'] = function () use ($app) {
+    return new BiometricSite\Service\BioAuthV1Service(
+        $app['repository.bioClient'],
+        $app['repository.bioSession'],
+        $app['repository.bioAuthSession']
+    );
+};
 
 /*********************************************************************************
  * CONTROLLERS
@@ -66,20 +70,27 @@ $app['controller.home'] = $app->share(function () use ($app) {
 });
 
 $app['controller.loginAuth'] = $app->share(function () use ($app) {
-    return new BiometricSite\Controller\LoginAuthController($app['request_stack']->getCurrentRequest(), $app['twig'], $app['service.loginAuth']);
+    return new BiometricSite\Controller\LoginAuthController(
+        $app['request_stack']->getCurrentRequest(),
+        $app['twig'],
+        $app['service.loginAuth']
+    );
 });
 
 $app['controller.bioAuth.V1'] = $app->share(function () use ($app) {
-    return new BiometricSite\Controller\BioAuthV1Controller($app['request_stack']->getCurrentRequest(), $app['service.bioAuth.V1']);
+    return new BiometricSite\Controller\BioAuthV1Controller(
+        $app['request_stack']->getCurrentRequest(),
+        $app['service.bioAuth.V1']
+    );
 });
 
 /*********************************************************************************
  * MIDDLEWARE
  ********************************************************************************/
-$jsonRequestTransform = function (\Symfony\Component\HttpFoundation\Request $request) {
-    if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
-        $data = json_decode($request->getContent(), true);
-        $request->request->replace(is_array($data) ? $data : array());
+$convertJsonRequestBody = function (\Symfony\Component\HttpFoundation\Request $request) {
+    if (strpos($request->headers->get('Content-Type'), 'application/json') === 0) {
+        $requestBody = json_decode($request->getContent(), true);
+        $request->request->replace(is_array($requestBody) ? $requestBody : []);
     }
 };
 
@@ -92,6 +103,6 @@ $app->get('/authentication/login', 'controller.loginAuth:indexAction');
 $app->post('/authentication/login', 'controller.loginAuth:loginAction');
 
 $app->post('/authentication/v1/biometric', 'controller.bioAuth.V1:stage1Action')
-    ->before($jsonRequestTransform);
+    ->before($convertJsonRequestBody);
 
 $app->run();
