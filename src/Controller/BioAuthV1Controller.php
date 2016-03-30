@@ -24,10 +24,10 @@ class BioAuthV1Controller implements BioAuthV1ControllerInterface {
     }
 
     public function stage1Action() {
-        return $this->bioAuthService->authenticate($this->request->request->get('client_id'), $this->request->getClientIp(), $this);
+        return $this->bioAuthService->performStage1($this->request->request->get('client_id'), $this->request->getClientIp(), $this);
     }
 
-    public function invalidClientIDResponse() {
+    public function invalidClientIdResponse() {
         return new Response('', Response::HTTP_FORBIDDEN);
     }
 
@@ -37,7 +37,7 @@ class BioAuthV1Controller implements BioAuthV1ControllerInterface {
 
     public function successfulResponse($duration) {
         $responseData = [
-            'expires' => (int)$duration
+            'expires' => (int)$duration > 0 ? (int)$duration : 0
         ];
 
         return new JsonResponse((object)$responseData, Response::HTTP_OK);

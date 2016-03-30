@@ -12,7 +12,7 @@ namespace BiometricSite\Controller;
 interface BioAuthV1ControllerInterface {
     public function stage1Action();
 
-    public function invalidClientIDResponse();
+    public function invalidClientIdResponse();
 
     public function invalidRequestResponse();
 
