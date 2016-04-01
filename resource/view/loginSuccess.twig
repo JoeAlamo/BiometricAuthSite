@@ -1,0 +1,29 @@
+{% extends "layout.twig" %}
+
+{% block content %}
+    <h1>Login Successful</h1>
+    <h2>Past biometric_authenticated_sessions</h2>
+    {% for bas in auth %}
+        <h3>BAS ID: {{ bas.biometric_authenticated_session_id }}</h3>
+        <ul>
+            <li>Expires: {{ bas.expires }}</li>
+            <li>biometric_client_id: {{ bas.biometric_client_id }}</li>
+            <li>biometric_session_id: {{ bas.biometric_session_id }}</li>
+            <li>session_id: {{ bas.session_id }}</li>
+            <li>client_random: {{ bas.client_random }}</li>
+            <li>ip_address: {{ bas.ip_address }}</li>
+            <li>timestamp: {{ bas.timestamp }}</li>
+        </ul>
+    {% endfor %}
+    <h2>Past biometric_sessions</h2>
+    {% for bs in nonAuth %}
+        <h3>BS ID: {{ bs.biometric_session_id }}</h3>
+        <ul>
+            <li>session_id: {{ bs.session_id }}</li>
+            <li>client_random: {{ bs.client_random }}</li>
+            <li>ip_address: {{ bs.ip_address }}</li>
+            <li>timestamp: {{ bs.timestamp }}</li>
+            <li>biometric_client_id: {{ bs.biometric_client_id }}</li>
+        </ul>
+    {% endfor %}
+{% endblock %}

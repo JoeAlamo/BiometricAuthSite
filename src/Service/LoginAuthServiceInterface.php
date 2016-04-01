@@ -9,6 +9,8 @@
 namespace BiometricSite\Service;
 
 
+use BiometricSite\Controller\LoginAuthControllerInterface;
+
 interface LoginAuthServiceInterface {
-    public function authenticateUser($username, $password);
+    public function authenticateUser($username, $password, LoginAuthControllerInterface $endpoint);
 } 

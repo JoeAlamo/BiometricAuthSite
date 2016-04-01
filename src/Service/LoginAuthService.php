@@ -9,6 +9,7 @@
 namespace BiometricSite\Service;
 
 
+use BiometricSite\Controller\LoginAuthControllerInterface;
 use BiometricSite\Repository\UserRepositoryInterface;
 
 class LoginAuthService implements LoginAuthServiceInterface {
@@ -24,23 +25,26 @@ class LoginAuthService implements LoginAuthServiceInterface {
      * authentication prior to this.
      * @param string $username
      * @param string $password
+     * @param LoginAuthControllerInterface $endpoint
      * @return bool
      */
-    public function authenticateUser($username, $password) {
+    public function authenticateUser($username, $password, LoginAuthControllerInterface $endpoint) {
         $user = $this->userRepository->findByUsername($username);
         if (!$user) {
-            return false;
+            return $endpoint->unsuccessfulLogin();
         }
 
         if (!password_verify($password, $user->password)) {
-            return false;
+            return $endpoint->unsuccessfulLogin();
         }
 
         if (!$this->userRepository->isBiometricallyAuthenticated($user->user_id)) {
-            return false;
+            return $endpoint->unsuccessfulLogin();
         }
 
-        return true;
+        $previousSessions = $this->userRepository->getBiometricSessions($user->user_id);
+
+        return $endpoint->successfulLogin($previousSessions);
     }
 
 } 
