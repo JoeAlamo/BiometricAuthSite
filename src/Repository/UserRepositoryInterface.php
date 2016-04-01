@@ -23,6 +23,12 @@ interface UserRepositoryInterface {
     public function findByUsername($username);
 
     /**
+     * @param $user_id
+     * @return array
+     */
+    public function getBiometricSessions($user_id);
+
+    /**
      * @param $id
      * @return bool
      */
