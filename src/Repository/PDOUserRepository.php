@@ -83,8 +83,7 @@ class PDOUserRepository implements UserRepositoryInterface {
             SELECT COUNT(biometric_authenticated_session_id)
             FROM biometric_authenticated_session AS bas
             INNER JOIN biometric_client AS bc ON bc.biometric_client_id = bas.biometric_client_id
-            INNER JOIN user AS u ON u.user_id = bc.user_id
-            WHERE u.user_id = :user_id
+            WHERE bc.user_id = :user_id
             AND bas.expires > NOW()
         ');
         $stmt->bindParam(':user_id', $user_id, \PDO::PARAM_INT);
