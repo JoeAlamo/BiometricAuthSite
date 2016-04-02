@@ -25,7 +25,10 @@ class BioAuthV2Controller implements BioAuthV2ControllerInterface {
 
     public function stage1Action()
     {
-        // TODO: Implement stage1Action() method.
+        return $this->bioAuthService->performStage1(
+            $this->request->getClientIp(),
+            $this
+        );
     }
 
     public function stage1SuccessResponse($session_id, $server_id)

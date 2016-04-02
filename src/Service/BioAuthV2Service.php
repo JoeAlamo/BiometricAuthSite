@@ -16,6 +16,7 @@ use BiometricSite\Repository\BioSessionRepositoryInterface;
 
 class BioAuthV2Service implements BioAuthV2ServiceInterface {
     const BIO_AUTH_EXPIRY_TIME = 30;
+    const SERVER_ID = "BFYZ5cGtO9SsqEzuUrWu7g==";
 
     private $bioClientRepository;
     private $bioSessionRepository;
@@ -38,7 +39,12 @@ class BioAuthV2Service implements BioAuthV2ServiceInterface {
      */
     public function performStage1($ip_address, BioAuthV2ControllerInterface $endpoint)
     {
-        // TODO
+        // Randomly generate unique session_id
+        $session_id = $this->generateUnusedSessionId();
+        // Save biometric_session
+        $bioSession = $this->bioSessionRepository->add($session_id, null, $ip_address, null);
+        // Instruct controller to respond
+        return $endpoint->stage1SuccessResponse($session_id, self::SERVER_ID);
     }
 
     public function performStage2(
