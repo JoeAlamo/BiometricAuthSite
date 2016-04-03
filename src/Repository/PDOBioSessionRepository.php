@@ -74,4 +74,19 @@ class PDOBioSessionRepository implements BioSessionRepositoryInterface {
 
         return $stmt->fetch();
     }
+
+    public function update($biometric_session_id, $client_random, $ip_address, $timestamp)
+    {
+        $stmt = $this->database->prepare('
+            UPDATE biometric_session
+            SET client_random = :client_random, ip_address = :ip_address, timestamp = :timestamp
+            WHERE biometric_session_id = :biometric_session_id
+        ');
+        $stmt->bindParam(':client_random', $client_random);
+        $stmt->bindParam(':ip_address', $ip_address);
+        $stmt->bindParam(':timestamp', $timestamp);
+        $stmt->bindParam(':biometric_session_id', $biometric_session_id);
+
+        return $stmt->execute();
+    }
 }
