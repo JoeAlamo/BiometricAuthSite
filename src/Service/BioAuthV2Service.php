@@ -106,6 +106,7 @@ class BioAuthV2Service extends AbstractBioAuthService implements BioAuthV2Servic
         $rawProvidedMAC = $this->base64_url_decode($client_mac);
         error_log(bin2hex($rawProvidedMAC));
         $rawAuthKey = $this->base64_url_decode($bioClient->authentication_key);
+        error_log(bin2hex($rawAuthKey));
         // client_mac is hmac of client_id||server_id||session_id||client_random
         $rawClientId = $this->base64_url_decode($bioClient->client_id);
         error_log(bin2hex($rawClientId));
@@ -116,7 +117,7 @@ class BioAuthV2Service extends AbstractBioAuthService implements BioAuthV2Servic
         $rawClientRandom = $this->base64_url_decode($client_random);
         error_log(bin2hex($rawClientRandom));
         $rawBaseClientMAC = $rawClientId . $rawServerId . $rawSessionId . $rawClientRandom;
-        $calculatedMAC = hash_hmac('sha256', $rawBaseClientMAC, $rawAuthKey, true);
+        $calculatedMAC = substr(hash_hmac('sha256', $rawBaseClientMAC, $rawAuthKey, true), 0, 16);
         error_log(bin2hex($calculatedMAC));
 
         return $this->cryptoSecureCompare($calculatedMAC, $rawProvidedMAC);
