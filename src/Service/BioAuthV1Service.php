@@ -66,7 +66,7 @@ class BioAuthV1Service implements BioAuthV1ServiceInterface {
             return false;
         }
 
-        if (strlen(base64_decode($client_id)) !== 16) {
+        if (strlen($this->base64_url_decode($client_id)) !== 16) {
             return false;
         }
 
@@ -88,7 +88,7 @@ class BioAuthV1Service implements BioAuthV1ServiceInterface {
         do {
             // Generate session_id securely
             $cryptographicallySecure = false;
-            $session_id = base64_encode(openssl_random_pseudo_bytes(16, $cryptographicallySecure));
+            $session_id = $this->base64_url_encode(openssl_random_pseudo_bytes(16, $cryptographicallySecure));
             if ($cryptographicallySecure === false) {
                 throw new \UnexpectedValueException("System is not cryptographically secure", 500);
             }
@@ -97,5 +97,23 @@ class BioAuthV1Service implements BioAuthV1ServiceInterface {
         } while ($session_idAlreadyExists !== false);
 
         return $session_id;
+    }
+
+    /**
+     * @desc URL safe b64 encode
+     * @param $input
+     * @return string
+     */
+    private function base64_url_encode($input) {
+        return strtr(base64_encode($input), '+/=', '-_~');
+    }
+
+    /**
+     * @desc URL safe b64 decode
+     * @param $input
+     * @return string
+     */
+    private function base64_url_decode($input) {
+        return base64_decode(strtr($input, '-_~', '+/='));
     }
 }
