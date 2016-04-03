@@ -76,7 +76,7 @@ class BioAuthV2Service extends AbstractBioAuthService implements BioAuthV2Servic
             return $endpoint->invalidClientRandomResponse();
         }
         // Compute client_mac and verify provided is correct
-        if (!$this->verifyClientMAC($bioClient, $client_mac)) {
+        if (!$this->verifyClientMAC($bioClient, $bioSession, $client_random, $client_mac)) {
             $this->saveStage2SessionState($bioSession, $bioClient, $client_random, $ip_address);
             return $endpoint->invalidClientMACResponse();
         }
@@ -98,13 +98,19 @@ class BioAuthV2Service extends AbstractBioAuthService implements BioAuthV2Servic
         $this->bioSessionRepository->associateSessionToClient($bioSession->biometric_session_id, $bioClient->biometric_client_id);
     }
 
-    private function verifyClientMAC(BiometricClient $bioClient, $client_mac) {
+    private function verifyClientMAC(BiometricClient $bioClient, BiometricSession $bioSession, $client_random, $client_mac) {
         // Calculate our own client_mac using clients authentication key
-        $rawMAC = $this->base64_url_decode($client_mac);
+        $rawProvidedMAC = $this->base64_url_decode($client_mac);
         $rawAuthKey = $this->base64_url_decode($bioClient->authentication_key);
-        $calculatedMAC = hash_hmac('sha256', $rawMAC, $rawAuthKey, true);
+        // client_mac is hmac of client_id||server_id||session_id||client_random
+        $rawClientId = $this->base64_url_decode($bioClient->client_id);
+        $rawServerId = $this->base64_url_decode(self::SERVER_ID);
+        $rawSessionId = $this->base64_url_decode($bioSession->session_id);
+        $rawClientRandom = $this->base64_url_decode($client_random);
+        $rawBaseClientMAC = $rawClientId . $rawServerId . $rawSessionId . $rawClientRandom;
+        $calculatedMAC = hash_hmac('sha256', $rawBaseClientMAC, $rawAuthKey, true);
 
-        return $this->cryptoSecureCompare($calculatedMAC, $rawMAC);
+        return $this->cryptoSecureCompare($calculatedMAC, $rawProvidedMAC);
     }
 
     private function calculateServerMAC(BiometricClient $bioClient, $client_random) {
