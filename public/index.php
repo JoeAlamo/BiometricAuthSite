@@ -147,7 +147,7 @@ $app->post('/authentication/v1/biometric', 'controller.bioAuth.V1:stage1Action')
 $app->post('/authentication/v2/biometric', 'controller.bioAuth.V2:stage1Action')
     ->before($convertJsonRequestBody);
 
-$app->post('/authentication/v2/biometric/{session_id}', 'controller.bioAuth.V2:stage2Action:session_id')
+$app->post('/authentication/v2/biometric/{session_id}', 'controller.bioAuth.V2:stage2Action')
     ->before($convertJsonRequestBody);
 
 $app->run();
