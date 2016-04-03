@@ -16,7 +16,7 @@ use BiometricSite\Repository\BioSessionRepositoryInterface;
 
 class BioAuthV2Service implements BioAuthV2ServiceInterface {
     const BIO_AUTH_EXPIRY_TIME = 30;
-    const SERVER_ID = "BFYZ5cGtO9SsqEzuUrWu7g==";
+    const SERVER_ID = "BFYZ5cGtO9SsqEzuUrWu7g~~";
 
     private $bioClientRepository;
     private $bioSessionRepository;
