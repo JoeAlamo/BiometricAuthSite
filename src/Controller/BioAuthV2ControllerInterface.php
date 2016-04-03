@@ -24,6 +24,8 @@ interface BioAuthV2ControllerInterface {
 
     public function invalidClientMACResponse();
 
+    public function invalidClientRandomResponse();
+
     public function invalidSessionIdResponse();
 
 } 

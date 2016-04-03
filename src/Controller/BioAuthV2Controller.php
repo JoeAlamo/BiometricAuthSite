@@ -43,12 +43,24 @@ class BioAuthV2Controller implements BioAuthV2ControllerInterface {
 
     public function stage2Action($session_id)
     {
-        // TODO: Implement stage2Action() method.
+        return $this->bioAuthService->performStage2(
+            $session_id,
+            $this->request->request->get('client_id'),
+            $this->request->request->get('client_random'),
+            $this->request->request->get('client_mac'),
+            $this->request->getClientIp(),
+            $this
+        );
     }
 
     public function stage2SuccessResponse($server_mac, $duration)
     {
-        // TODO: Implement stage2SuccessResponse() method.
+        $responseData = [
+            'server_mac' => $server_mac,
+            'expires' => (int)$duration > 0 ? (int)$duration : 0
+        ];
+
+        return new JsonResponse((object)$responseData, Response::HTTP_OK);
     }
 
     public function invalidClientIdResponse() {
@@ -60,6 +72,11 @@ class BioAuthV2Controller implements BioAuthV2ControllerInterface {
     }
 
     public function invalidClientMACResponse()
+    {
+        return new Response('', Response::HTTP_FORBIDDEN);
+    }
+
+    public function invalidClientRandomResponse()
     {
         return new Response('', Response::HTTP_FORBIDDEN);
     }

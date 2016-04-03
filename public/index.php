@@ -67,6 +67,10 @@ $app['repository.bioAuthSession'] = function () use ($app) {
    return new BiometricSite\Repository\PDOBioAuthSessionRepository($app['database']);
 };
 
+$app['repository.prevClientRandom'] = function () use ($app) {
+    return new BiometricSite\Repository\PDOPrevClientRandomRepository($app['database']);
+};
+
 /*********************************************************************************
  * SERVICES
  ********************************************************************************/
@@ -86,7 +90,8 @@ $app['service.bioAuth.V2'] = function () use ($app) {
     return new \BiometricSite\Service\BioAuthV2Service(
         $app['repository.bioClient'],
         $app['repository.bioSession'],
-        $app['repository.bioAuthSession']
+        $app['repository.bioAuthSession'],
+        $app['repository.prevClientRandom']
     );
 };
 /*********************************************************************************
@@ -140,6 +145,9 @@ $app->post('/authentication/v1/biometric', 'controller.bioAuth.V1:stage1Action')
     ->before($convertJsonRequestBody);
 
 $app->post('/authentication/v2/biometric', 'controller.bioAuth.V2:stage1Action')
+    ->before($convertJsonRequestBody);
+
+$app->post('/authentication/v2/biometric/{session_id}', 'controller.bioAuth.v2:stage2Action:session_id')
     ->before($convertJsonRequestBody);
 
 $app->run();

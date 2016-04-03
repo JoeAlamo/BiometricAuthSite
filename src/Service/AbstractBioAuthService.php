@@ -11,6 +11,7 @@ namespace BiometricSite\Service;
 use BiometricSite\Repository\BioAuthSessionRepositoryInterface;
 use BiometricSite\Repository\BioClientRepositoryInterface;
 use BiometricSite\Repository\BioSessionRepositoryInterface;
+use BiometricSite\Repository\PrevClientRandomRepositoryInterface;
 
 abstract class AbstractBioAuthService {
     const BIO_AUTH_EXPIRY_TIME = 30;
@@ -55,6 +56,30 @@ abstract class AbstractBioAuthService {
     }
 
     /**
+     * @param $session_id
+     * @return bool
+     */
+    protected function verifySessionIdNotMalformed($session_id) {
+        if (!$session_id) {
+            return false;
+        }
+
+        if (strlen($this->base64_url_decode($session_id)) !== 16) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $session_id
+     * @return \BiometricSite\Model\BiometricSession|false
+     */
+    protected function verifySessionIdBelongsToValidSession($session_id) {
+        return $this->bioSessionRepository->findBySessionId($session_id);
+    }
+
+    /**
      * @return string
      */
     protected function generateUnusedSessionId() {
@@ -88,5 +113,24 @@ abstract class AbstractBioAuthService {
      */
     protected function base64_url_decode($input) {
         return base64_decode(strtr($input, '-_~', '+/='));
+    }
+
+    protected function cryptoSecureCompare($stringA, $stringB) {
+        if (!is_string($stringA) || !is_string($stringB)) {
+            return false;
+        }
+
+        $stringLen = strlen($stringA);
+        if ($stringLen !== strlen($stringB)) {
+            return false;
+        }
+
+        $differences = 0;
+        for ($i = 0; $i < $stringLen; $i++) {
+            // XOR byte by byte, if different increment $differences
+            $differences |= ord($stringA[$i]) ^ ord($stringB[$i]);
+        }
+
+        return $differences === 0;
     }
 } 
