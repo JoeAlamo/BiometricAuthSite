@@ -14,7 +14,7 @@ use BiometricSite\Repository\BioSessionRepositoryInterface;
 
 abstract class AbstractBioAuthService {
     const BIO_AUTH_EXPIRY_TIME = 30;
-    const SERVER_ID = "BFYZ5cGtO9SsqEzuUrWu7g~~";
+    const SERVER_ID = "BFYZ5cGtO9SsqEzuUrWu7g==";
 
     protected $bioClientRepository;
     protected $bioSessionRepository;
@@ -78,7 +78,7 @@ abstract class AbstractBioAuthService {
      * @return string
      */
     protected function base64_url_encode($input) {
-        return strtr(base64_encode($input), '+/=', '-_~');
+        return strtr(base64_encode($input), '+/', '-_');
     }
 
     /**
@@ -87,6 +87,6 @@ abstract class AbstractBioAuthService {
      * @return string
      */
     protected function base64_url_decode($input) {
-        return base64_decode(strtr($input, '-_~', '+/='));
+        return base64_decode(strtr($input, '-_', '+/'));
     }
 } 
