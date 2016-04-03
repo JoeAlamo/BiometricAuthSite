@@ -71,8 +71,7 @@ class BioAuthV2Controller implements BioAuthV2ControllerInterface {
         return new Response('', Response::HTTP_BAD_REQUEST);
     }
 
-    public function invalidClientMACResponse()
-    {
+    public function invalidClientMACResponse(){
         return new Response('', Response::HTTP_FORBIDDEN);
     }
 

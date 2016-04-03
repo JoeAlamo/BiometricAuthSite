@@ -68,16 +68,19 @@ class BioAuthV2Service extends AbstractBioAuthService implements BioAuthV2Servic
 
         $bioClient = $this->verifyClientIdBelongsToValidClient($client_id);
         if (!$bioClient) {
+            error_log("Invalid client ID");
             return $endpoint->invalidClientIdResponse();
         }
         // Verify client_random has not been used before by that client
         if ($this->prevClientRandomRepository->hasBeenUsedPreviously($bioClient->biometric_client_id, $client_random)) {
+            error_log("Invalid client random");
             $this->saveStage2SessionState($bioSession, $bioClient, $client_random, $ip_address);
             return $endpoint->invalidClientRandomResponse();
         }
         // Compute client_mac and verify provided is correct
         if (!$this->verifyClientMAC($bioClient, $bioSession, $client_random, $client_mac)) {
             $this->saveStage2SessionState($bioSession, $bioClient, $client_random, $ip_address);
+            error_log("Invalid client MAC");
             return $endpoint->invalidClientMACResponse();
         }
         // Calculate server_mac (server_id||client_random)
