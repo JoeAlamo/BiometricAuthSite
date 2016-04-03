@@ -125,7 +125,11 @@ class BioAuthV2Service extends AbstractBioAuthService implements BioAuthV2Servic
 
     private function calculateServerMAC(BiometricClient $bioClient, $client_random) {
         $rawAuthKey = $this->base64_url_decode($bioClient->authentication_key);
-        $rawServerMAC = hash_hmac('sha256', self::SERVER_ID . $client_random, $rawAuthKey, true);
+        $rawServerId = $this->base64_url_decode(self::SERVER_ID);
+        $rawClientRandom = $this->base64_url_decode($client_random);
+        $rawServerMACBase = $rawServerId . $rawClientRandom;
+
+        $rawServerMAC = substr(hash_hmac('sha256', $rawServerMACBase, $rawAuthKey, true), 0, 16);
 
         return $this->base64_url_encode($rawServerMAC);
     }
