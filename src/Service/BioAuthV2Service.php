@@ -68,23 +68,20 @@ class BioAuthV2Service extends AbstractBioAuthService implements BioAuthV2Servic
 
         $bioClient = $this->verifyClientIdBelongsToValidClient($client_id);
         if (!$bioClient) {
-            error_log("Invalid client ID");
             return $endpoint->invalidClientIdResponse();
         }
         // Verify client_random has not been used before by that client
         if ($this->prevClientRandomRepository->hasBeenUsedPreviously($bioClient->biometric_client_id, $client_random)) {
-            error_log("Invalid client random");
             $this->saveStage2SessionState($bioSession, $bioClient, $client_random, $ip_address);
             return $endpoint->invalidClientRandomResponse();
         }
         // Compute client_mac and verify provided is correct
         if (!$this->verifyClientMAC($bioClient, $bioSession, $client_random, $client_mac)) {
             $this->saveStage2SessionState($bioSession, $bioClient, $client_random, $ip_address);
-            error_log("Invalid client MAC");
             return $endpoint->invalidClientMACResponse();
         }
         // Calculate server_mac (server_id||client_random)
-        $server_mac = $this->calculateServerMAC($bioClient, $client_random);
+        $server_mac = $this->calculateServerMAC($bioSession, $bioClient, $client_random);
         // Create biometric authenticated session & save biometric_session state
         $bioAuthSession = $this->bioAuthSessionRepository->add($bioClient->biometric_client_id, $bioSession->biometric_session_id, self::BIO_AUTH_EXPIRY_TIME);
         $this->saveStage2SessionState($bioSession, $bioClient, $client_random, $ip_address);
@@ -104,26 +101,22 @@ class BioAuthV2Service extends AbstractBioAuthService implements BioAuthV2Servic
     private function verifyClientMAC(BiometricClient $bioClient, BiometricSession $bioSession, $client_random, $client_mac) {
         // Calculate our own client_mac using clients authentication key
         $rawProvidedMAC = $this->base64_url_decode($client_mac);
-        error_log(bin2hex($rawProvidedMAC));
         $rawAuthKey = $this->base64_url_decode($bioClient->authentication_key);
-        error_log(bin2hex($rawAuthKey));
         // client_mac is hmac of client_id||server_id||session_id||client_random
         $rawClientId = $this->base64_url_decode($bioClient->client_id);
-        error_log(bin2hex($rawClientId));
         $rawServerId = $this->base64_url_decode(self::SERVER_ID);
-        error_log(bin2hex($rawServerId));
         $rawSessionId = $this->base64_url_decode($bioSession->session_id);
-        error_log(bin2hex($rawSessionId));
         $rawClientRandom = $this->base64_url_decode($client_random);
-        error_log(bin2hex($rawClientRandom));
         $rawBaseClientMAC = $rawClientId . $rawServerId . $rawSessionId . $rawClientRandom;
+
         $calculatedMAC = substr(hash_hmac('sha256', $rawBaseClientMAC, $rawAuthKey, true), 0, 16);
-        error_log(bin2hex($calculatedMAC));
+
+        $this->logClientMACForDemo($bioSession->biometric_session_id, $rawProvidedMAC, $rawAuthKey, $rawClientId, $rawServerId, $rawSessionId, $rawClientRandom, $calculatedMAC);
 
         return $this->cryptoSecureCompare($calculatedMAC, $rawProvidedMAC);
     }
 
-    private function calculateServerMAC(BiometricClient $bioClient, $client_random) {
+    private function calculateServerMAC(BiometricSession $bioSession, BiometricClient $bioClient, $client_random) {
         $rawAuthKey = $this->base64_url_decode($bioClient->authentication_key);
         $rawServerId = $this->base64_url_decode(self::SERVER_ID);
         $rawClientRandom = $this->base64_url_decode($client_random);
@@ -131,6 +124,23 @@ class BioAuthV2Service extends AbstractBioAuthService implements BioAuthV2Servic
 
         $rawServerMAC = substr(hash_hmac('sha256', $rawServerMACBase, $rawAuthKey, true), 0, 16);
 
+        $this->logServerMACForDemo($bioSession->biometric_session_id, $rawServerMAC);
+
         return $this->base64_url_encode($rawServerMAC);
     }
+
+    private function logClientMACForDemo($bioSessionId, $providedMAC, $authKey, $clientId, $serverId, $sessionId, $clientRandom, $calculatedMAC) {
+        $this->logToFile($bioSessionId, "Provided client_mac:", $this->byteStringToHexArray($providedMAC));
+        $this->logToFile($bioSessionId, "Auth key:", $this->byteStringToHexArray($authKey));
+        $this->logToFile($bioSessionId, "client_id", $this->byteStringToHexArray($clientId));
+        $this->logToFile($bioSessionId, "server_id:", $this->byteStringToHexArray($serverId));
+        $this->logToFile($bioSessionId, "session_id:", $this->byteStringToHexArray($sessionId));
+        $this->logToFile($bioSessionId, "client_random:", $this->byteStringToHexArray($clientRandom));
+        $this->logToFile($bioSessionId, "Calculated client_mac:", $this->byteStringToHexArray($calculatedMAC));
+    }
+
+    private function logServerMACForDemo($bioSessionId, $serverMAC) {
+        $this->logToFile($bioSessionId, "server_mac:", $this->byteStringToHexArray($serverMAC));
+    }
+
 }

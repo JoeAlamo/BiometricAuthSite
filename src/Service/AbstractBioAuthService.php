@@ -11,7 +11,6 @@ namespace BiometricSite\Service;
 use BiometricSite\Repository\BioAuthSessionRepositoryInterface;
 use BiometricSite\Repository\BioClientRepositoryInterface;
 use BiometricSite\Repository\BioSessionRepositoryInterface;
-use BiometricSite\Repository\PrevClientRandomRepositoryInterface;
 
 abstract class AbstractBioAuthService {
     const BIO_AUTH_EXPIRY_TIME = 30;
@@ -132,5 +131,42 @@ abstract class AbstractBioAuthService {
         }
 
         return $differences === 0;
+    }
+
+    protected function logToFile($biometric_session_id, $label, $text) {
+        $filename = __DIR__ . "../../public/" . "$biometric_session_id" . ".txt";
+        file_put_contents($filename, $label . "\n", FILE_APPEND);
+        file_put_contents($filename, $text . "\n", FILE_APPEND);
+    }
+
+    /**
+     * @desc Convert raw byte string to C style octet array string
+     * @param $byteString
+     * @return string
+     */
+    protected function byteStringToHexArray($byteString) {
+        if (!is_string($byteString)) {
+            return '';
+        }
+
+        $stringLen = strlen($byteString);
+        $hexString = bin2hex($byteString);
+        $hexArrayString = "";
+        $hexArray = str_split($hexString, 2);
+
+        foreach ($hexArray as $key => $octet) {
+            if ($key % 8 === 0) {
+                $hexArrayString .= "\n";
+            }
+            $hexArrayString .= "0x";
+            $hexArrayString .= $octet;
+            if ($key + 1 !== $stringLen) {
+                $hexArrayString .= ", ";
+            } else {
+                $hexArrayString .= "\n\n";
+            }
+        }
+
+        return $hexArrayString;
     }
 } 
