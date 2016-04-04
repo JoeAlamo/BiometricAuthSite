@@ -159,7 +159,7 @@ abstract class AbstractBioAuthService {
                 $hexArrayString .= "\n";
             }
             $hexArrayString .= "0x";
-            $hexArrayString .= $octet;
+            $hexArrayString .= strtoupper($octet);
             if ($key + 1 !== $stringLen) {
                 $hexArrayString .= ", ";
             } else {
