@@ -134,7 +134,7 @@ abstract class AbstractBioAuthService {
     }
 
     protected function logToFile($biometric_session_id, $label, $text) {
-        $filename = __DIR__ . "../../public/" . "$biometric_session_id" . ".txt";
+        $filename = __DIR__ . "/../../public/" . "$biometric_session_id" . ".txt";
         file_put_contents($filename, $label . "\n", FILE_APPEND);
         file_put_contents($filename, $text . "\n", FILE_APPEND);
     }
