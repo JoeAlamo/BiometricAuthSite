@@ -55,6 +55,19 @@ abstract class AbstractBioAuthService {
     }
 
     /**
+     * @desc Wrapper for checking malformed session_id then valid session_id
+     * @param $session_id
+     * @return \BiometricSite\Model\BiometricSession|bool|false
+     */
+    protected function verifySessionId($session_id) {
+        if (!$this->verifySessionIdNotMalformed($session_id)) {
+            return false;
+        }
+
+        return $this->verifySessionIdBelongsToValidSession($session_id);
+    }
+
+    /**
      * @param $session_id
      * @return bool
      */
