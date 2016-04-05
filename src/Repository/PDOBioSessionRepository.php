@@ -22,16 +22,17 @@ class PDOBioSessionRepository implements BioSessionRepositoryInterface {
     {
         $stmt = $this->database->prepare('
             INSERT INTO biometric_session
-            (session_id, client_random, ip_address) values (:session_id, :client_random, :ip_address)
+            (session_id, client_random, ip_address, timestamp) values (:session_id, :client_random, :ip_address, :timestamp)
         ');
         $stmt->bindParam(':session_id', $session_id);
         $stmt->bindParam(':client_random', $client_random);
         $stmt->bindParam(':ip_address', $ip_address);
+        $stmt->bindParam(':timestamp', $timestamp);
 
         $success = $stmt->execute();
 
         if ($success) {
-            $biometricSession = new BiometricSession($this->database->lastInsertId(), $session_id, $client_random, $ip_address, null, null);
+            $biometricSession = $this->findBySessionId($session_id);
 
             return $biometricSession;
         }
@@ -73,5 +74,20 @@ class PDOBioSessionRepository implements BioSessionRepositoryInterface {
         $stmt->setFetchMode(\PDO::FETCH_CLASS, 'BiometricSite\\Model\\BiometricSession');
 
         return $stmt->fetch();
+    }
+
+    public function update($biometric_session_id, $client_random, $ip_address, $timestamp)
+    {
+        $stmt = $this->database->prepare('
+            UPDATE biometric_session
+            SET client_random = :client_random, ip_address = :ip_address, timestamp = :timestamp
+            WHERE biometric_session_id = :biometric_session_id
+        ');
+        $stmt->bindParam(':client_random', $client_random);
+        $stmt->bindParam(':ip_address', $ip_address);
+        $stmt->bindParam(':timestamp', $timestamp);
+        $stmt->bindParam(':biometric_session_id', $biometric_session_id);
+
+        return $stmt->execute();
     }
 }

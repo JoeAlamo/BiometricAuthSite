@@ -67,6 +67,10 @@ $app['repository.bioAuthSession'] = function () use ($app) {
    return new BiometricSite\Repository\PDOBioAuthSessionRepository($app['database']);
 };
 
+$app['repository.prevClientRandom'] = function () use ($app) {
+    return new BiometricSite\Repository\PDOPrevClientRandomRepository($app['database']);
+};
+
 /*********************************************************************************
  * SERVICES
  ********************************************************************************/
@@ -82,6 +86,14 @@ $app['service.bioAuth.V1'] = function () use ($app) {
     );
 };
 
+$app['service.bioAuth.V2'] = function () use ($app) {
+    return new \BiometricSite\Service\BioAuthV2Service(
+        $app['repository.bioClient'],
+        $app['repository.bioSession'],
+        $app['repository.bioAuthSession'],
+        $app['repository.prevClientRandom']
+    );
+};
 /*********************************************************************************
  * CONTROLLERS
  ********************************************************************************/
@@ -104,6 +116,13 @@ $app['controller.bioAuth.V1'] = $app->share(function () use ($app) {
     );
 });
 
+$app['controller.bioAuth.V2'] = $app->share(function () use ($app) {
+    return new BiometricSite\Controller\BioAuthV2Controller(
+        $app['request_stack']->getCurrentRequest(),
+        $app['service.bioAuth.V2']
+    );
+});
+
 /*********************************************************************************
  * MIDDLEWARE
  ********************************************************************************/
@@ -123,6 +142,12 @@ $app->get('/authentication/login', 'controller.loginAuth:indexAction');
 $app->post('/authentication/login', 'controller.loginAuth:loginAction');
 
 $app->post('/authentication/v1/biometric', 'controller.bioAuth.V1:stage1Action')
+    ->before($convertJsonRequestBody);
+
+$app->post('/authentication/v2/biometric', 'controller.bioAuth.V2:stage1Action')
+    ->before($convertJsonRequestBody);
+
+$app->post('/authentication/v2/biometric/{session_id}', 'controller.bioAuth.V2:stage2Action')
     ->before($convertJsonRequestBody);
 
 $app->run();

@@ -14,21 +14,14 @@ use BiometricSite\Repository\BioAuthSessionRepositoryInterface;
 use BiometricSite\Repository\BioClientRepositoryInterface;
 use BiometricSite\Repository\BioSessionRepositoryInterface;
 
-class BioAuthV1Service implements BioAuthV1ServiceInterface {
-    const BIO_AUTH_EXPIRY_TIME = 30;
-
-    private $bioClientRepository;
-    private $bioSessionRepository;
-    private $bioAuthSessionRepository;
+class BioAuthV1Service extends AbstractBioAuthService implements BioAuthV1ServiceInterface {
 
     public function __construct(
         BioClientRepositoryInterface $bioClientRepository,
         BioSessionRepositoryInterface $bioSessionRepository,
         BioAuthSessionRepositoryInterface $bioAuthSessionRepository
     ) {
-        $this->bioClientRepository = $bioClientRepository;
-        $this->bioSessionRepository = $bioSessionRepository;
-        $this->bioAuthSessionRepository = $bioAuthSessionRepository;
+        parent::__construct($bioClientRepository, $bioSessionRepository, $bioAuthSessionRepository);
     }
 
     /**
@@ -55,47 +48,5 @@ class BioAuthV1Service implements BioAuthV1ServiceInterface {
         $bioAuthSession = $this->bioAuthSessionRepository->add($bioClient->biometric_client_id, $bioSession->biometric_session_id, self::BIO_AUTH_EXPIRY_TIME);
 
         return $endpoint->successfulResponse($bioAuthSession->expires);
-    }
-
-    /**
-     * @param $client_id
-     * @return bool
-     */
-    private function verifyClientIdNotMalformed($client_id) {
-        if (!$client_id) {
-            return false;
-        }
-
-        if (strlen(base64_decode($client_id)) !== 16) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param $client_id
-     * @return \BiometricSite\Model\BiometricClient|false
-     */
-    private function verifyClientIdBelongsToValidClient($client_id) {
-        return $this->bioClientRepository->findByClientId($client_id);
-    }
-
-    /**
-     * @return string
-     */
-    private function generateUnusedSessionId() {
-        do {
-            // Generate session_id securely
-            $cryptographicallySecure = false;
-            $session_id = base64_encode(openssl_random_pseudo_bytes(16, $cryptographicallySecure));
-            if ($cryptographicallySecure === false) {
-                throw new \UnexpectedValueException("System is not cryptographically secure", 500);
-            }
-            // See if session_id has already been used for a session
-            $session_idAlreadyExists = $this->bioSessionRepository->findBySessionId($session_id);
-        } while ($session_idAlreadyExists !== false);
-
-        return $session_id;
     }
 }
