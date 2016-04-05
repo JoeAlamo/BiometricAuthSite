@@ -71,6 +71,10 @@ $app['repository.prevClientRandom'] = function () use ($app) {
     return new BiometricSite\Repository\PDOPrevClientRandomRepository($app['database']);
 };
 
+$app['repository.prevClientTimestamp'] = function () use ($app) {
+    return new BiometricSite\Repository\PDOPrevClientTimestampRepository($app['database']);
+};
+
 /*********************************************************************************
  * SERVICES
  ********************************************************************************/
@@ -100,7 +104,8 @@ $app['service.bioAuth.V3'] = function () use ($app) {
         $app['repository.bioClient'],
         $app['repository.bioSession'],
         $app['repository.bioAuthSession'],
-        $app['repository.prevClientRandom']
+        $app['repository.prevClientRandom'],
+        $app['repository.prevClientTimestamp']
     );
 };
 /*********************************************************************************

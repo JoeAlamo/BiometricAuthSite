@@ -16,18 +16,22 @@ use BiometricSite\Repository\BioAuthSessionRepositoryInterface;
 use BiometricSite\Repository\BioClientRepositoryInterface;
 use BiometricSite\Repository\BioSessionRepositoryInterface;
 use BiometricSite\Repository\PrevClientRandomRepositoryInterface;
+use BiometricSite\Repository\PrevClientTimestampRepositoryInterface;
 
 class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3ServiceInterface {
     private $prevClientRandomRepository;
+    private $prevClientTimestampRepository;
 
     public function __construct(
         BioClientRepositoryInterface $bioClientRepository,
         BioSessionRepositoryInterface $bioSessionRepository,
         BioAuthSessionRepositoryInterface $bioAuthSessionRepository,
-        PrevClientRandomRepositoryInterface $prevClientRandomRepository
+        PrevClientRandomRepositoryInterface $prevClientRandomRepository,
+        PrevClientTimestampRepositoryInterface $prevClientTimestampRepository
     ) {
         parent::__construct($bioClientRepository, $bioSessionRepository, $bioAuthSessionRepository);
         $this->prevClientRandomRepository = $prevClientRandomRepository;
+        $this->prevClientTimestampRepository = $prevClientTimestampRepository;
     }
 
     /**
