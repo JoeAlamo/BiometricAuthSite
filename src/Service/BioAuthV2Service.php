@@ -54,10 +54,7 @@ class BioAuthV2Service extends AbstractBioAuthService implements BioAuthV2Servic
         BioAuthV2ControllerInterface $endpoint
     ) {
         // Verify session_id is linked to a valid session
-        if (!$this->verifySessionIdNotMalformed($session_id)) {
-            return $endpoint->invalidSessionIdResponse();
-        }
-        $bioSession = $this->verifySessionIdBelongsToValidSession($session_id);
+        $bioSession = $this->verifySessionId($session_id);
         if (!$bioSession) {
             return $endpoint->invalidSessionIdResponse();
         }
