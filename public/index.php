@@ -94,6 +94,15 @@ $app['service.bioAuth.V2'] = function () use ($app) {
         $app['repository.prevClientRandom']
     );
 };
+
+$app['service.bioAuth.V3'] = function () use ($app) {
+    return new \BiometricSite\Service\BioAuthV3Service(
+        $app['repository.bioClient'],
+        $app['repository.bioSession'],
+        $app['repository.bioAuthSession'],
+        $app['repository.prevClientRandom']
+    );
+};
 /*********************************************************************************
  * CONTROLLERS
  ********************************************************************************/
@@ -123,6 +132,13 @@ $app['controller.bioAuth.V2'] = $app->share(function () use ($app) {
     );
 });
 
+$app['controller.bioAuth.V3'] = $app->share(function () use ($app) {
+    return new BiometricSite\Controller\BioAuthV3Controller(
+        $app['request_stack']->getCurrentRequest(),
+        $app['service.bioAuth.V3']
+    );
+});
+
 /*********************************************************************************
  * MIDDLEWARE
  ********************************************************************************/
@@ -148,6 +164,12 @@ $app->post('/authentication/v2/biometric', 'controller.bioAuth.V2:stage1Action')
     ->before($convertJsonRequestBody);
 
 $app->post('/authentication/v2/biometric/{session_id}', 'controller.bioAuth.V2:stage2Action')
+    ->before($convertJsonRequestBody);
+
+$app->post('/authentication/v3/biometric', 'controller.bioAuth.V3:stage1Action')
+    ->before($convertJsonRequestBody);
+
+$app->post('/authentication/v3/biometric/{session_id}', 'controller.bioAuth.V3:stage2Action')
     ->before($convertJsonRequestBody);
 
 $app->run();
