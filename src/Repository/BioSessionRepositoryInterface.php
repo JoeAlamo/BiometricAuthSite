@@ -14,6 +14,7 @@ interface BioSessionRepositoryInterface {
      * @param $session_id
      * @param $client_random
      * @param $ip_address
+     * @param $timestamp
      * @return \BiometricSite\Model\BiometricSession|false
      */
     public function add($session_id, $client_random, $ip_address, $timestamp);
