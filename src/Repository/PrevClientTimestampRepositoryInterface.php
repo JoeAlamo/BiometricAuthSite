@@ -23,4 +23,11 @@ interface PrevClientTimestampRepositoryInterface {
      * @return int $timestamp|false
      */
     public function find($biometric_client_id);
+
+    /**
+     * @param $biometric_client_id
+     * @param $timestamp
+     * @return bool
+     */
+    public function isFresh($timestamp);
 } 

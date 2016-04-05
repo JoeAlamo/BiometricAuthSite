@@ -44,6 +44,25 @@ class PDOPrevClientTimestampRepository implements PrevClientTimestampRepositoryI
     }
 
     /**
+     * @desc Determine whether timestamp is within 10 minutes (-5/+5) of current time
+     * @param $timestamp
+     * @return bool
+     */
+    public function isFresh($timestamp) {
+        // Is (timestamp) BETWEEN NOW() - 5 minutes and NOW() + 5 minutes?
+        $stmt = $this->database->prepare('
+            SELECT FROM_UNIXTIME(:timestamp)
+            BETWEEN DATE_SUB(NOW(), INTERVAL 5 MINUTE)
+            AND DATE_ADD(NOW(), INTERVAL 5 MINUTE)
+            AS is_fresh;
+        ');
+        $stmt->bindParam('timestamp', $timestamp);
+        $stmt->execute();
+
+        return (bool)$stmt->fetchColumn();
+    }
+
+    /**
      * @param $biometric_client_id
      * @param $timestamp
      * @return bool
