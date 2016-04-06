@@ -173,9 +173,10 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
         $rawCiphertext = $this->base64_url_decode($ciphertext);
         $rawTag = $this->base64_url_decode($tag);
         $rawSessionId = $this->base64_url_decode($bioSession->session_id);
+        $nonce = pack('H*', '0000000000000000');
 
         // Verify and decrypt ciphertext
-        $plaintextJSON = \Sodium\crypto_aead_chacha20poly1305_decrypt($rawCiphertext . $rawTag, $rawSessionId, '00000000', $sessionKey);
+        $plaintextJSON = \Sodium\crypto_aead_chacha20poly1305_decrypt($rawCiphertext . $rawTag, $rawSessionId, $nonce, $sessionKey);
 
         if ($plaintextJSON === false) {
             return false;
