@@ -79,7 +79,7 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
         }
 
         // Verify the tag and decrypt the ciphertext
-        $rawSessionKey = $this->generateSessionKey($bioClient->key_derivation_key, $timestamp, $bioSession->session_id, $client_id, self::SERVER_ID);
+        $rawSessionKey = $this->generateSessionKey($bioClient->key_derivation_key, $timestamp, $bioSession, $client_id, self::SERVER_ID);
         $plaintext =  $this->verifyAndDecryptCiphertext($ciphertext, $tag, $bioSession, $rawSessionKey);
         if ($plaintext === false) {
             $this->prevClientTimestampRepository->addOrUpdate($bioClient->biometric_client_id, $timestamp);
@@ -138,9 +138,9 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
      * @param $server_id
      * @return string
      */
-    private function generateSessionKey($kdk, $timestamp, $session_id, $client_id, $server_id) {
+    private function generateSessionKey($kdk, $timestamp, BiometricSession $bioSession, $client_id, $server_id) {
         $rawKDK = $this->base64_url_decode($kdk);
-        $rawSessionId = $this->base64_url_decode($session_id);
+        $rawSessionId = $this->base64_url_decode($bioSession->session_id);
         $rawClientId = $this->base64_url_decode($client_id);
         $rawServerId = $this->base64_url_decode($server_id);
 
@@ -149,7 +149,17 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
 
         // Step 2: Expand PRK using client_id||server_id as context, and PRK as the key.
         // As we only need a 32byte session key, we only have to perform this once
-        return hash_hmac('sha256', $rawClientId . $rawServerId . chr(1), $prk, true);
+        $rawSessionKey = hash_hmac('sha256', $rawClientId . $rawServerId . chr(1), $prk, true);
+        
+        $this->logSessionKeyForDemo($bioSession->biometric_session_id, $rawKDK, $prk, $rawSessionKey);
+        
+        return $rawSessionKey;
+    }
+    
+    private function logSessionKeyForDemo($bioSessionId, $rawKDK, $rawPRK, $rawSessionKey) {
+        $this->logToFile($bioSessionId, "kdk:", $this->byteStringToHexArray($rawKDK));
+        $this->logToFile($bioSessionId, "prk:", $this->byteStringToHexArray($rawPRK));
+        $this->logToFile($bioSessionId, "session key:", $this->byteStringToHexArray($rawSessionKey));
     }
 
     /**
@@ -188,7 +198,6 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
     private function logReceivedCiphertextForDemo($bioSessionId, $rawCiphertext, $rawTag, $rawSessionKey, $plaintext) {
         $this->logToFile($bioSessionId, "ciphertext:", $this->byteStringToHexArray($rawCiphertext));
         $this->logToFile($bioSessionId, "tag:", $this->byteStringToHexArray($rawTag));
-        $this->logToFile($bioSessionId, "session key:", $this->byteStringToHexArray($rawSessionKey));
         $this->logToFile($bioSessionId, "plaintext:", $plaintext);
     }
 
