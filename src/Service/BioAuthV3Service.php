@@ -75,7 +75,7 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
 
         // Verify timestamp
         if (!$this->verifyTimestamp($bioClient->biometric_client_id, $timestamp)) {
-            return false;
+            return $endpoint->invalidTimestampResponse();
         }
 
         // Verify the tag and decrypt the ciphertext
