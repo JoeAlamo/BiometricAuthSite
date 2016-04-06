@@ -179,18 +179,18 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
         $plaintextJSON = \Sodium\crypto_aead_chacha20poly1305_decrypt($rawCiphertext . $rawTag, $rawSessionId, $nonce, $sessionKey);
 
         if ($plaintextJSON === false) {
-            $this->logReceivedCiphertextForDemo($bioSession->biometric_session_id, $rawCiphertext, $rawTag, $sessionKey, $nonce, $plaintextJSON);
+            $this->logReceivedCiphertextForDemo($bioSession->biometric_session_id, $rawCiphertext, $rawTag, $sessionKey, $nonce, $rawSessionId, $plaintextJSON);
             return false;
         }
 
         // Attempt to decode JSON string
         $plaintext = json_decode($plaintextJSON);
         if (!array_key_exists('client_random', $plaintext) || !array_key_exists('client_mac', $plaintext)) {
-            $this->logReceivedCiphertextForDemo($bioSession->biometric_session_id, $rawCiphertext, $rawTag, $sessionKey, $nonce, $plaintextJSON);
+            $this->logReceivedCiphertextForDemo($bioSession->biometric_session_id, $rawCiphertext, $rawTag, $sessionKey, $nonce, $rawSessionId, $plaintextJSON);
             return false;
         }
 
-        $this->logReceivedCiphertextForDemo($bioSession->biometric_session_id, $rawCiphertext, $rawTag, $sessionKey, $nonce, $plaintextJSON);
+        $this->logReceivedCiphertextForDemo($bioSession->biometric_session_id, $rawCiphertext, $rawTag, $sessionKey, $nonce, $rawSessionId, $plaintextJSON);
 
         return [
             $plaintext['client_random'],
@@ -198,10 +198,11 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
         ];
     }
 
-    private function logReceivedCiphertextForDemo($bioSessionId, $rawCiphertext, $rawTag, $rawSessionKey, $nonce, $plaintext) {
+    private function logReceivedCiphertextForDemo($bioSessionId, $rawCiphertext, $rawTag, $rawSessionKey, $nonce, $rawSessionId, $plaintext) {
         $this->logToFile($bioSessionId, "ciphertext:", $this->byteStringToHexArray($rawCiphertext));
         $this->logToFile($bioSessionId, "tag:", $this->byteStringToHexArray($rawTag));
         $this->logToFile($bioSessionId, "nonce:", $this->byteStringToHexArray($nonce));
+        $this->logToFile($bioSessionId, "session_id:", $this->byteStringToHexArray($rawSessionId));
         $this->logToFile($bioSessionId, "plaintext:", $plaintext);
     }
 
