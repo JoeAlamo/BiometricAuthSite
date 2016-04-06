@@ -10,6 +10,9 @@
 # Composer PHAR
 /composer.phar
 
+# Bio session logs
+/public/*.txt
+
 # =========================
 # Operating System Files
 # =========================
