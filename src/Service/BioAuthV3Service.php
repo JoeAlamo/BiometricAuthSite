@@ -145,7 +145,7 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
         $rawServerId = $this->base64_url_decode($server_id);
 
         // Step 1: Extract PRK using KDK as IKM and timestamp||session_id as salt
-        $prk = hash_hmac('sha256', $rawKDK, $timestamp . $rawSessionId, true);
+        $prk = hash_hmac('sha256', $rawKDK, pack('L', strval($timestamp)) . $rawSessionId, true);
 
         // Step 2: Expand PRK using client_id||server_id as context, and PRK as the key.
         // As we only need a 32byte session key, we only have to perform this once
