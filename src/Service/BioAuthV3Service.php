@@ -176,7 +176,7 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
         $nonce = pack('H*', '0000000000000000');
 
         // Verify and decrypt ciphertext
-        $plaintextJSON = \Sodium\crypto_aead_chacha20poly1305_decrypt($rawCiphertext . $rawTag, $rawSessionId, $nonce, $sessionKey);
+        $plaintextJSON = \Sodium\crypto_aead_chacha20poly1305_decrypt($rawCiphertext . $rawTag, '', $nonce, $sessionKey);
 
         if ($plaintextJSON === false) {
             $this->logReceivedCiphertextForDemo($bioSession->biometric_session_id, $rawCiphertext, $rawTag, $sessionKey, $nonce, $rawSessionId, $plaintextJSON);
