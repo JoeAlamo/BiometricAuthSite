@@ -185,7 +185,7 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
         }
 
         // Attempt to decode JSON string
-        $plaintext = json_decode($plaintextJSON);
+        $plaintext = json_decode($plaintextJSON, true);
         if (!array_key_exists('client_random', $plaintext) || !array_key_exists('client_mac', $plaintext)) {
             $this->logReceivedCiphertextForDemo($bioSession->biometric_session_id, $rawCiphertext, $rawTag, $sessionKey, $nonce, $rawSessionId, $plaintextJSON);
             return false;
