@@ -173,10 +173,11 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
         $rawCiphertext = $this->base64_url_decode($ciphertext);
         $rawTag = $this->base64_url_decode($tag);
         $rawSessionId = $this->base64_url_decode($bioSession->session_id);
-        $nonce = pack('H*', '0000000000000000');
+        // 96 bit nonce - value of 0
+        $nonce = pack('H*', '000000000000000000000000');
 
         // Verify and decrypt ciphertext
-        $plaintextJSON = \Sodium\crypto_aead_chacha20poly1305_decrypt($rawCiphertext . $rawTag, '', $nonce, $sessionKey);
+        $plaintextJSON = \Sodium\crypto_aead_chacha20poly1305_ietf_decrypt($rawCiphertext . $rawTag, $rawSessionId, $nonce, $sessionKey);
 
         if ($plaintextJSON === false) {
             $this->logReceivedCiphertextForDemo($bioSession->biometric_session_id, $rawCiphertext, $rawTag, $sessionKey, $nonce, $rawSessionId, $plaintextJSON);
@@ -215,6 +216,8 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
      */
     private function encryptAndTag($server_mac, $expires, BiometricSession $bioSession, $rawSessionKey) {
         $rawSessionId = $this->base64_url_decode($bioSession->session_id);
+        // 96 bit nonce, 0 incremented by 1
+        $nonce = pack('H*', '000000000000000000000001');
         $contents = [
             'server_mac' => $server_mac,
             'expires' => (int)$expires
@@ -222,7 +225,7 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
         $json = json_encode((object)$contents);
         $jsonLen = strlen($json);
 
-        $ciphertextAndTag = \Sodium\crypto_aead_chacha20poly1305_encrypt($json, $rawSessionId, '00000001', $rawSessionKey);
+        $ciphertextAndTag = \Sodium\crypto_aead_chacha20poly1305_ietf_encrypt($json, $rawSessionId, $nonce, $rawSessionKey);
 
         $ciphertext = substr($ciphertextAndTag, 0, $jsonLen);
         $tag = substr($ciphertextAndTag, $jsonLen, 16);
