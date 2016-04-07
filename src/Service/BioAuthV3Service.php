@@ -157,6 +157,7 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
     }
     
     private function logSessionKeyForDemo($bioSessionId, $rawKDK, $rawPRK, $rawSessionKey) {
+        $this->logToFile($bioSessionId, "== SESSION KEY GENERATION ==", '------------------------------------------------');
         $this->logToFile($bioSessionId, "kdk:", $this->byteStringToHexArray($rawKDK));
         $this->logToFile($bioSessionId, "prk:", $this->byteStringToHexArray($rawPRK));
         $this->logToFile($bioSessionId, "session key:", $this->byteStringToHexArray($rawSessionKey));
@@ -200,6 +201,7 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
     }
 
     private function logReceivedCiphertextForDemo($bioSessionId, $rawCiphertext, $rawTag, $rawSessionKey, $nonce, $rawSessionId, $plaintext) {
+        $this->logToFile($bioSessionId, "== STAGE 2 REQUEST VERIFICATION AND DECRYPTION ==", '------------------------------------------------');
         $this->logToFile($bioSessionId, "ciphertext:", $this->byteStringToHexArray($rawCiphertext));
         $this->logToFile($bioSessionId, "tag:", $this->byteStringToHexArray($rawTag));
         $this->logToFile($bioSessionId, "nonce:", $this->byteStringToHexArray($nonce));
@@ -239,6 +241,7 @@ class BioAuthV3Service extends AbstractBioAuthService implements BioAuthV3Servic
     }
 
     private function logCreatedCiphertextForDemo($bioSessionId, $rawCiphertext, $rawTag, $rawSessionKey, $plaintext) {
+        $this->logToFile($bioSessionId, "== STAGE 2 RESPONSE ENCRYPTION AND TAGGING ==", '------------------------------------------------');
         $this->logToFile($bioSessionId, "response ciphertext:", $this->byteStringToHexArray($rawCiphertext));
         $this->logToFile($bioSessionId, "response tag:", $this->byteStringToHexArray($rawTag));
         $this->logToFile($bioSessionId, "session key:", $this->byteStringToHexArray($rawSessionKey));

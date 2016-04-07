@@ -130,6 +130,7 @@ abstract class AbstractBioAuthService {
     }
 
     private function logClientMACForDemo($bioSessionId, $providedMAC, $authKey, $clientId, $serverId, $sessionId, $clientRandom, $calculatedMAC) {
+        $this->logToFile($bioSessionId, "== STAGE 2 REQUEST CLIENT MAC VERIFICATION ==", '------------------------------------------------');
         $this->logToFile($bioSessionId, "Provided client_mac:", $this->byteStringToHexArray($providedMAC));
         $this->logToFile($bioSessionId, "Auth key:", $this->byteStringToHexArray($authKey));
         $this->logToFile($bioSessionId, "client_id", $this->byteStringToHexArray($clientId));
