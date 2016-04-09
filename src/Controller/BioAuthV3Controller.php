@@ -9,16 +9,16 @@
 namespace BiometricSite\Controller;
 
 
-use BiometricSite\Service\BioAuthV2ServiceInterface;
+use BiometricSite\Service\BioAuthV3ServiceInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class BioAuthV2Controller extends AbstractBioAuthController implements BioAuthV2ControllerInterface {
+class BioAuthV3Controller extends AbstractBioAuthController implements BioAuthV3ControllerInterface {
     private $request;
     private $bioAuthService;
 
-    public function __construct(Request $request, BioAuthV2ServiceInterface $bioAuthService) {
+    public function __construct(Request $request, BioAuthV3ServiceInterface $bioAuthService) {
         $this->request = $request;
         $this->bioAuthService = $bioAuthService;
     }
@@ -46,18 +46,19 @@ class BioAuthV2Controller extends AbstractBioAuthController implements BioAuthV2
         return $this->bioAuthService->performStage2(
             $session_id,
             $this->request->request->get('client_id'),
-            $this->request->request->get('client_random'),
-            $this->request->request->get('client_mac'),
+            $this->request->request->get('timestamp'),
+            $this->request->request->get('ciphertext'),
+            $this->request->request->get('tag'),
             $this->request->getClientIp(),
             $this
         );
     }
 
-    public function stage2SuccessResponse($server_mac, $duration)
+    public function stage2SuccessResponse($ciphertext, $tag)
     {
         $responseData = [
-            'server_mac' => $server_mac,
-            'expires' => (int)$duration > 0 ? (int)$duration : 0
+            'ciphertext' => $ciphertext,
+            'tag' => $tag
         ];
 
         return new JsonResponse((object)$responseData, Response::HTTP_OK);
