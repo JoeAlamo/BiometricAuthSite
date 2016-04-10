@@ -10,7 +10,7 @@ namespace BiometricSite\Controller;
 
 
 interface FailedVerificationControllerInterface {
-    public function logFailedVerificationAction($client_id);
+    public function logFailedVerificationAction();
 
     public function successfullyLoggedResponse();
 

@@ -22,7 +22,7 @@ class FailedVerificationController implements FailedVerificationControllerInterf
         $this->failedVerificationService = $failedVerificationService;
     }
 
-    public function logFailedVerificationAction($client_id) {
+    public function logFailedVerificationAction() {
         return $this->failedVerificationService->logFailedVerificationAttempt(
             $this->request->get('client_id'),
             $this->request->getClientIp(),
