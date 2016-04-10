@@ -75,6 +75,10 @@ $app['repository.prevClientTimestamp'] = function () use ($app) {
     return new BiometricSite\Repository\PDOPrevClientTimestampRepository($app['database']);
 };
 
+$app['repository.failedVerificationAttempt'] = function () use ($app) {
+    return new \BiometricSite\Repository\PDOFailedVerificationAttemptRepository($app['database']);
+};
+
 /*********************************************************************************
  * SERVICES
  ********************************************************************************/
@@ -108,6 +112,14 @@ $app['service.bioAuth.V3'] = function () use ($app) {
         $app['repository.prevClientTimestamp']
     );
 };
+
+$app['service.failedVerification'] = function () use ($app) {
+    return new \BiometricSite\Service\FailedVerificationService(
+        $app['repository.bioClient'],
+        $app['repository.failedVerificationAttempt']
+    );
+};
+
 /*********************************************************************************
  * CONTROLLERS
  ********************************************************************************/
@@ -144,6 +156,13 @@ $app['controller.bioAuth.V3'] = $app->share(function () use ($app) {
     );
 });
 
+$app['controller.failedVerification'] = $app->share(function () use ($app) {
+   return new \BiometricSite\Controller\FailedVerificationController(
+       $app['request_stack']->getCurrentRequest(),
+       $app['service.failedVerification']
+   );
+});
+
 /*********************************************************************************
  * MIDDLEWARE
  ********************************************************************************/
@@ -175,6 +194,9 @@ $app->post('/authentication/v3/biometric', 'controller.bioAuth.V3:stage1Action')
     ->before($convertJsonRequestBody);
 
 $app->post('/authentication/v3/biometric/{session_id}', 'controller.bioAuth.V3:stage2Action')
+    ->before($convertJsonRequestBody);
+
+$app->post('/authentication/failed-verification', 'controller.failedVerification:logFailedVerificationAction')
     ->before($convertJsonRequestBody);
 
 $app->run();
